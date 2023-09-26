@@ -1,0 +1,15 @@
+echo ls, $(man ls| wc --lines) > /tmp/temp-file
+cat /tmp/temp-file
+
+echo ls, $(man man| wc --lines) > /tmp/temp-file
+cat /tmp/temp-file
+
+echo ls, $(man find| wc --lines) > /tmp/temp-file
+cat /tmp/temp-file
+
+
+cat /tmp/temp-file | sort
+sort < /tmp/temp-file 
+#should get same result
+
+
