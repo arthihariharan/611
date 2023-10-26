@@ -10,13 +10,12 @@ library(patchwork)
 
 #Load and clean
 
-proteome <- read.delim2("~/work/Project/HS_CPTAC_GBM_proteome_mssm_per_gene.txt")
-phosprot <- read.delim2("~/work/Project/HS_CPTAC_GBM_phosphoproteome_mssm_site.txt")
-genome <- read.delim2("~/work/Project/HS_CPTAC_GBM_rnaseq_fpkm_uq_log2.txt")
-sampInfo <-read.delim2("~/work/Project/HS_CPTAC_GBM_CLI.txt")
-mut_bin <- read.delim2("~/work/Project/GBM_somatic_mutation_gene_level_binary.txt")
-mutations<- read.delim("~/work/Project/somaticwrapper_all_cases_filtered.v4.0.20200430.maf.gz")
-GBM_meta<-read.delim("~/work/Project/GBM_meta.txt")
+proteome <- read.delim2("CPTAC_GBM_proteome_mssm_per_gene.txt")
+phosprot <- read.delim2("CPTAC_GBM_phosphoproteome_mssm_site.txt")
+genome <- read.delim2("CPTAC_GBM_rnaseq_fpkm_uq_log2.txt")
+sampInfo <-read.delim2("CPTAC_GBM_CLI.txt")
+mutations<- read.delim("somatic_mutations.maf.gz")
+GBM_meta<-read.delim("GBM_meta.txt")
 
 sampInfo<-sampInfo[-1,]
 mutations<-mutations[,c(-2,-3)]
@@ -33,3 +32,5 @@ phosprot<-phosprot[,-1]
 rownames(genome)<-genome[,1]
 genome<-genome[,-1]
 
+write.csv(sampInfo, "sampInfo.csv", row.names = FALSE)
+write.csv(GBM_meta,"GBM_metainfo.csv", row.names = FALSE)
