@@ -1,21 +1,25 @@
-# Mutations
+# Mutations dataset
+
+#libraries
+library(ggplot2)
+library(dplyr)
+
+GBM_meta <-read.csv("GBM_metainfo.csv")
 
 # Subset the data frame to rows 10 to 17
 subset_data <- GBM_meta[,12:17]
 
 subset_data <- subset_data %>% mutate_all(as.numeric)
 
-# Calculating the sum of each row in the subset
-row_sums <- rowSums(subset_data)  # Exclude the first column (Gene names)
+# Calculating the sum of each column in the subset
+col_sums <-rowSums(subset_data)
+
+# Calculating the sum of each column in the subset
 col_sums <-colSums(subset_data)
 
 col_sums<-as.data.frame(col_sums)
 col_sums$genes <- rownames(col_sums)
 col_sums$genes <- gsub("_mutation", "", col_sums$genes)
-
-subset_data<-rbind(subset_data,col_sums)
-
-# Total sum of rows 10 to 17
 
 # Plot
 
