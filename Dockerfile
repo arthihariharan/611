@@ -1,16 +1,27 @@
-# Use rocker/rstudio as the base image
 FROM rocker/rstudio
 
-# Accept build argument for USER_ID with a default value
-ARG USER_ID=1000
+################
+#install linux deps
+################
 
-# Conditional logic to update UID and home directory ownership if USER_ID is different from current rstudio UID
-RUN current_uid=$(id -u rstudio) && \
-    if [ "$USER_ID" != "$current_uid" ]; then \
-            usermod -u $USER_ID rstudio && \
-	            chown -R rstudio:rstudio /home/rstudio; \
-		        fi
+RUN apt-get update -y && \
+	apt-get install -y \
+			curl
 
-RUN apt update && apt install -y man-db && rm -rf /var/lib/apt/lists/*
-RUN yes|unminimize
+################
+#install R packages
+################
+
+# Install additional R packages
+RUN R -e "install.packages('readr')"
+RUN R -e "install.packages('gtsummary')"
+RUN R -e "install.packages('ggplot2')"
+RUN R -e "install.packages('dplyr')"
+
+# Install Bioconductor packages using BiocManager
+RUN R -e "install.packages('BiocManager')"
+RUN R -e "BiocManager::install('maftools')"
+
+# Install patchwork package from CRAN
+RUN R -e "install.packages('patchwork')"
 
