@@ -1,5 +1,11 @@
 #Demographics
 
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+sampInfo <- read.csv("sampInfo.csv")
+GBM_meta <- read.csv("GBM_metainfo.csv")
 #Age distribution by gender
 
 p2<-sampInfo %>% ggplot(aes(as.numeric(age),gender)) +
@@ -22,7 +28,6 @@ p3<-sampInfo %>%
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-p3
 
 # Smoking status
 
