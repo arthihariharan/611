@@ -1,0 +1,147 @@
+---
+title: "Clustering"
+output: html_document
+date: "2023-11-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stats)
+library(ggplot2)
+```
+
+# Dimensionality reduction
+
+The proteome dataset of the CPTAC Glioblastoma study is used for Dimensionality reduction.
+
+```{r}
+proteome <- read.delim2("CPTAC_GBM_proteome_mssm_per_gene.txt")
+rownames(proteome)<-proteome$gene
+proteome<-proteome[,-1]
+proteome<- proteome %>% mutate_if(is.character, as.numeric)
+sampInfo <- read.csv("~/work/611/sampInfo.csv")
+
+```
+
+The proteome data frame contains the protein abundance values. A TMT-reference channel strategy was used. The log-transformed ratio for each sample's abundance to a pooled reference is given.Positive values indicate a measurement higher than the pooled reference; negative values are lower than the pooled reference. Some samples had no data for some proteins and are labeled as NA. The samples which are marked NA are not used in the analysis. (<https://paynelab.github.io/cptac/tutorial01_data_intro.html>)
+
+The avergae number of proteins identified in each sample is `round(mean(colSums(!is.na(proteome)),0))` .
+
+```{r}
+# Calculate the number of proteins identified (not NA) in each sample
+png("num_proteins.png")
+boxplot(colSums(!is.na(proteome)), horizontal = TRUE,
+        xlab = "Number of Proteins Detected", main = "Average number of proteins")
+dev.off()
+boxplot(colSums(!is.na(proteome)), horizontal = TRUE,
+        xlab = "Number of Proteins Detected", main = "Average number of proteins")
+
+```
+
+## hclust
+
+```{r}
+
+clust <- hclust(dist(!is.na(proteome)))
+
+```
+
+## PCA
+
+### Proteome
+
+Since the protein abundance varies between samples, we use dimensionality reduction using Principal Component Analysis (PCA) before further analysis.
+
+The initial sample size is 99. However, since samples with NAs are removed, only 50 samples are used for analysis.
+
+```{r}
+
+#PCA
+
+set.seed(123)
+pca_result <- prcomp(na.omit(proteome))
+
+variance <- (pca_result$sdev)^2
+
+#cumulative variance
+cumulative_variance <- cumsum(variance) / sum(variance)
+
+```
+
+The number of PCs obtained is 50, which is equal to the length of the variables.
+
+```{r}
+df<- data.frame(Dimension = 1:length(cumulative_variance), cumulativeVariance = cumulative_variance)
+
+ggplot(df, aes(x = Dimension, y = cumulativeVariance)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0.95) +
+  xlab("Principal Component") +
+  ylab("Cumulative Proportion of Variance Explained") +
+  ggtitle("PCA Cumulative Variance plot for Proteome data")
+
+```
+
+```{r}
+
+pcs <- pca_result$x[,1:50] %>% as_tibble(name_repair = "simple")
+ggplot(pcs, aes(PC1,PC2)) + geom_point()
+ggplot(pcs,aes(PC49,PC50)) + geom_point()
+```
+
+#### tSNE
+
+```{r}
+tsne(na.omit(proteome))
+```
+
+### Transcriptome
+
+#### RNA Seq (Gene Expression)
+
+The genome data frame contains the log 2 transformed, upper normalized FPKM gene expression data.
+
+```{r}
+genome <- read.delim2("CPTAC_GBM_rnaseq_fpkm_uq_log2.txt")
+rownames(genome)<-genome$gene
+genome<- genome[,-1]
+genome <- genome %>% mutate_if(is.character, as.numeric)
+genome_matrix <- as.matrix(genome) %>% t()
+
+```
+
+##### Normalization
+
+```{r}
+
+
+```
+
+```{r}
+# Perform the PCA
+genome_pca <- prcomp(na.omit(genome_matrix),scale. = T)
+
+genome_variance <- (genome_pca$sdev)^2
+
+#cumulative variance
+genome_cumulative_variance <- cumsum(genome_variance) / sum(genome_variance)
+
+df2<- data.frame(Dimension = 1:length(genome_cumulative_variance), cumulativeVariance = genome_cumulative_variance)
+
+ggplot(df, aes(x = Dimension, y = cumulativeVariance)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0.85) +
+  xlab("Principal Component") +
+  ylab("Cumulative Proportion of Variance Explained") +
+  ggtitle("PCA Cumulative Variance plot for RNAseq")
+
+```
+
+Since transcriptomic and proteomic data are often non-linear in nature, tSNE or UMAP are better dimensionality reduction techniques.
+
+## tSNE
