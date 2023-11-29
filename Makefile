@@ -13,5 +13,12 @@ Demographics.png: Cleaning.R Demographics_plot.R
 Mutations.png: Cleaning.R Mutations.R
 	Rscript Cleaning.R
 	Rscript Mutations.R
+	
+# Dimensionality Reduction
+
+Clustering.html: Cleaning.R Clustering_Homework.Rmd
+	Rscript Cleaning.R
+	Rscript -e "rmarkdown::render('Clustering_Homework.Rmd')"
+	
 
 

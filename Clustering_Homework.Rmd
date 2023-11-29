@@ -1,6 +1,8 @@
 ---
 title: "Clustering"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 date: "2023-11-03"
 ---
 
@@ -22,7 +24,7 @@ proteome <- read.delim2("CPTAC_GBM_proteome_mssm_per_gene.txt")
 rownames(proteome)<-proteome$gene
 proteome<-proteome[,-1]
 proteome<- proteome %>% mutate_if(is.character, as.numeric)
-sampInfo <- read.csv("~/work/611/sampInfo.csv")
+sampInfo <- read.csv("sampInfo.csv")
 
 ```
 
@@ -96,7 +98,7 @@ ggplot(pcs,aes(PC49,PC50)) + geom_point()
 #### tSNE
 
 ```{r}
-tsne(na.omit(proteome))
+#tsne(na.omit(proteome))
 ```
 
 ### Transcriptome
@@ -116,10 +118,7 @@ genome_matrix <- as.matrix(genome) %>% t()
 
 ##### Normalization
 
-```{r}
 
-
-```
 
 ```{r}
 # Perform the PCA
@@ -143,5 +142,3 @@ ggplot(df, aes(x = Dimension, y = cumulativeVariance)) +
 ```
 
 Since transcriptomic and proteomic data are often non-linear in nature, tSNE or UMAP are better dimensionality reduction techniques.
-
-## tSNE
