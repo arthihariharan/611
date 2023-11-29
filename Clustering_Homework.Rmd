@@ -22,7 +22,7 @@ proteome <- read.delim2("CPTAC_GBM_proteome_mssm_per_gene.txt")
 rownames(proteome)<-proteome$gene
 proteome<-proteome[,-1]
 proteome<- proteome %>% mutate_if(is.character, as.numeric)
-sampInfo <- read.csv("~/work/611/sampInfo.csv")
+sampInfo <- read.csv("sampInfo.csv")
 
 ```
 
