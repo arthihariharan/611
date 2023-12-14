@@ -28,12 +28,14 @@ Report.html: Rscripts/Cleaning.R \
 
 # Create Figure showing demographics of the dataset
 #cleaning.R has Data cleaning and Demographics_plot.R has script has making figure
+
 Demographics.png: Rscripts/Cleaning.R Rscripts/Demographics_plot.R
 	Rscript Rscripts/Cleaning.R
 	Rscript Rscripts/Demographics_plot.R
 	
 # Create figure to analyse mutations
-#Mutation_plots.R has script for making plots
+# Mutation_plots.R has script for making plots
+
 Gene_counts.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
 	Rscript  Rscripts/Cleaning.R
 	Rscript  Rscripts/Mutation_plots.R
