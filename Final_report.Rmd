@@ -129,8 +129,6 @@ Variant Classification
 
 Mutations could be in different regions of the gene. Depending on the location of mutation, it could either impact gene regulation or protein expression. EGFR has most mutations in Intronic region and missense mutations. Missense mutations result in change in codons and thus a change in protein structure.
 
-All the mutations in the subset of data are non-synonymous mutations. EGFR is mutated in most samples
-
 ```{r mutTally2}
 mutation_subset %>%
   group_by(Hugo_Symbol, Variant_Classification) %>%
@@ -140,7 +138,7 @@ mutation_subset %>%
 
 ![Variants per gene](Figures/Mutation_gene.png){align="center"}
 
-The package GenVisR is useful for visualizing mutation data.
+The package GenVisR is useful for visualizing mutation data. All the mutations in the subset of data are non-synonymous mutations. EGFR is mutated in most samples and most samples have mutations in introns.
 
 ![Waterfall Plot for Mutations](Figures/Mutation_waterfall.png){align="center"}
 
@@ -176,4 +174,4 @@ draw(heatmap_obj)
 
 ## Conclusion
 
-The National Cancer Institute's Clinical Proteomic Tumor Analysis Consortium (CPTAC) contains comprehensive data for various tumors. However, the Glioblastoma data set contain lot of missing information regarding tumor staging. Also, the existing RNAseq data needs to be processed further to use it for gene expression analysis.
+The National Cancer Institute's Clinical Proteomic Tumor Analysis Consortium (CPTAC) contains comprehensive data for various tumors. However, the Glioblastoma data set contains limited clinical information. Also, the existing RNAseq data needs to be processed further to use it for gene expression analysis.
