@@ -5,8 +5,17 @@
 clean:
 	rm -f *.png
 	rm -f *.html
+	rm -f Figures/
+	rm -f derived_data/
 	
 all: Mutations.png Demographics.png Report.html
+
+# Final Project Report
+
+Report.html: Rscripts/Cleaning.R Rscripts/Mutation_plots.R Final_report.Rmd
+	Rscript Rscripts/Cleaning.R
+	Rscript Rscripts/Mutation_plots.R
+	Rscript -e "rmarkdown::render('Final_report.Rmd')"
 
 # Create Figure showing demographics of the dataset
 #cleanin.R has Data cleaning and Demographics_plot.R has script has making figure
@@ -26,8 +35,3 @@ Clustering.html:  Rscripts/Cleaning.R Clustering_Homework.Rmd
 	Rscript  Rscripts/Cleaning.R
 	Rscript -e "rmarkdown::render('Clustering_Homework.Rmd')"
 	
-# Final Project Report
-
-Report.html: Rscripts/Cleaning.R Final_report.Rmd
-	Rscript Rscripts/Cleaning.R
-	Rscript -e "rmarkdown::render('Final_report.Rmd')"
