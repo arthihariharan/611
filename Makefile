@@ -12,8 +12,7 @@ all: Report.html \
 		Mutation_gene.png \
 		Mutation_waterfall.png \
 		Gene_counts.png \
-		Demographics.png \
-		Report.html
+		Demographics.png
 
 # Final Project Report
 
