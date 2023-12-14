@@ -12,8 +12,12 @@ all: Mutations.png Demographics.png Report.html
 
 # Final Project Report
 
-Report.html: Rscripts/Cleaning.R Rscripts/Mutation_plots.R Final_report.Rmd
+Report.html: Rscripts/Cleaning.R \
+						Rscripts/Mutation_plots.R \
+						Rscripts/Demographics_plot.R \
+						Final_report.Rmd
 	Rscript Rscripts/Cleaning.R
+	Rscript Rscripts/Demographics_plot.R
 	Rscript Rscripts/Mutation_plots.R
 	Rscript -e "rmarkdown::render('Final_report.Rmd')"
 
@@ -25,9 +29,9 @@ Demographics.png: Rscripts/Cleaning.R Rscripts/Demographics_plot.R
 	
 # Create figure to see which mutations are prevalent
 #Mutations.R has number of mutations in each gene
-Mutations.png:  Rscripts/Cleaning.R  Rscripts/Mutations.R
+Mutations.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
 	Rscript  Rscripts/Cleaning.R
-	Rscript  Rscripts/Mutations.R
+	Rscript  Rscripts/Mutation_plots.R
 	
 # Dimensionality Reduction
 
