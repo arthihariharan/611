@@ -30,6 +30,8 @@ RUN R -e "install.packages('dplyr')"
 RUN R -e "install.packages('patchwork')"
 RUN R -e "install.packages('kableExtra')"
 RUN R -e "install.packages('pheatmap')"
+RUN R -e "install.packages('R.utils')"
+RUN R -e "install.packages('stringr')"
 
 # Install Bioconductor packages using BiocManager
 RUN R -e "install.packages('BiocManager')"
