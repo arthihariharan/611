@@ -5,10 +5,15 @@
 clean:
 	rm -f *.png
 	rm -f *.html
-	rm -f Figures/
+	rm -f Figures/*.png
 	rm -f derived_data/
 	
-all: Mutations.png Demographics.png Report.html
+all: Report.html \
+		Mutation_gene.png \
+		Mutation_waterfall.png \
+		Gene_counts.png \
+		Demographics.png \
+		Report.html
 
 # Final Project Report
 
@@ -22,14 +27,26 @@ Report.html: Rscripts/Cleaning.R \
 	Rscript -e "rmarkdown::render('Final_report.Rmd')"
 
 # Create Figure showing demographics of the dataset
-#cleanin.R has Data cleaning and Demographics_plot.R has script has making figure
+#cleaning.R has Data cleaning and Demographics_plot.R has script has making figure
 Demographics.png: Rscripts/Cleaning.R Rscripts/Demographics_plot.R
 	Rscript Rscripts/Cleaning.R
 	Rscript Rscripts/Demographics_plot.R
 	
-# Create figure to see which mutations are prevalent
-#Mutations.R has number of mutations in each gene
-Mutations.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
+# Create figure to analyse mutations
+#Mutation_plots.R has script for making plots
+Gene_counts.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
+	Rscript  Rscripts/Cleaning.R
+	Rscript  Rscripts/Mutation_plots.R
+	
+Mutation_gene.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
+	Rscript  Rscripts/Cleaning.R
+	Rscript  Rscripts/Mutation_plots.R
+	
+Mutation_waterfall.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
+	Rscript  Rscripts/Cleaning.R
+	Rscript  Rscripts/Mutation_plots.R
+	
+Pathways.png:  Rscripts/Cleaning.R  Rscripts/Mutation_plots.R
 	Rscript  Rscripts/Cleaning.R
 	Rscript  Rscripts/Mutation_plots.R
 	
