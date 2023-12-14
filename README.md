@@ -42,7 +42,7 @@ git clone https://github.com/arthihariharan/611.git
 In a new terminal/window, set the current working directory to the cloned folder.
 
 ```
-cd ~./611
+cd 611
 
 ```
 
