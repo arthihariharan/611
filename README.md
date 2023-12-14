@@ -90,9 +90,10 @@ ls
 #### 5. Makefile
 
 The Makefile is used to create the report and images. Please see the makefile for information about the relationship between the scripts and outputs. 
+The outputs will be created in the "work" folder. Please check the files in work folder for output. 
 
 
-  To create the final report run "make Report.html"
+  To create the final report run "make Report.html". This will create "Final_report.html" in the work folder. 
 
 ```
 make Report.html
