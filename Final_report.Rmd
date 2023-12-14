@@ -8,6 +8,8 @@ date: "`r Sys.Date()`"
 
 knitr::opts_chunk$set(echo = FALSE)
 library(dplyr)
+library(readr)
+library(stringr)
 library(ggplot2)
 library(patchwork)
 library(knitr)
@@ -25,72 +27,34 @@ library(GenVisR)
 
 ------------------------------------------------------------
 
-In this project, I analyse the proteome and genomic profile in Glioblastoma cancer to identify the most common mutations and relation between the proteomic and transcriptomic profiles.
+In this project, I analyse the genomic and mutational profile of Glioblastoma cancer to identify the most common mutations and gene expression patterns.
 
-The dataset used for this project is the CPTAC Gliobastoma cohort.
+The data set used for this project is the CPTAC Glioblastoma cohort.
 
-The files from ----- are cleaned before using for anlaysis
+The files from https://www.linkedomics.org/data_download/CPTAC-GBM/ are cleaned before using for analysis.
 
-```{r, echo=FALSE}
+```{r dataset, echo=FALSE}
 sampInfo <- read.csv("derived_data/sampInfo.csv")
 GBM_meta <- read.csv("derived_data/GBM_metainfo.csv")
+genome <- read.delim2("source_data/CPTAC_GBM_rnaseq_fpkm_uq_log2.txt")
+rownames(genome)<-genome[,1]
+genome<-genome[,-1]
+genome<-as.data.frame(genome)
+
+mutations<- read.delim("source_data/somatic_mutations.maf.gz")
+mutations$Variant_Classification <- ifelse( mutations$Variant_Classification=="Splice_Region", "Splice_Site",mutations$Variant_Classification)
 ```
 
 ***
 
 ## Demographics
 
-The data set contains data from 99 men and women aged 24 to 88, with a median age of 59. The patients are from various countries of origin, with around 30 from China, 21 from United States, 19 from Russia and 18 from Poland. 
+The data set contains information from 99 men and women aged 24 to 88, with a median age of 59. The patients are from various countries of origin, with around 30 from China, 21 from United States, 19 from Russia and 18 from Poland. 
 
-It is interesting to note that approximately 73% of the cohort were non-smokers (62 patients).
+It is interesting to note that approximately 73% of the cohort were non-smokers (62 patients). Previous studies also indicate smoking status is not a marker for glioblastoma.
 
 
-```{r, fig.align='center', fig.height= 4, fig.width= 6}
-#Age distribution by gender
-
-p2<-sampInfo %>% ggplot(aes(as.numeric(age),gender)) +
-  geom_boxplot(aes(fill=gender), show.legend = F) +
-  labs(title= "Age distribution", x = "Gender", y = "Age") +
-  coord_flip() +
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-
-# Country of origin
-
-p3 <- sampInfo %>%
-  filter(!is.na(country_of_origin)) %>% 
-  group_by(country_of_origin) %>%
-  tally() %>%
-  ggplot(aes(x = country_of_origin, y = n)) +  
-  geom_bar(aes(fill = country_of_origin), stat = "identity", show.legend = F) +
-  labs(title = "Country of Origin", x = "Countries", y = "Count") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-
-# Smoking status
-
-p4 <- GBM_meta %>%
-  filter(!is.na(Tobacco_smoking_history)) %>% 
-  group_by(Tobacco_smoking_history) %>%
-  tally() %>%
-  ggplot(aes(x = Tobacco_smoking_history, y = n)) +  
-  geom_bar(aes(fill= Tobacco_smoking_history),stat = "identity", show.legend = F) +
-  labs(title = "Proportion of smokers and Non-smokers", x = "Smoking status", y = "Count") + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-
-p2 + p3 + p4
-
-```
-
+![Demogrpahics plots](Figures/Demographics.png){width=50% align=center}
 
 
 ****
@@ -102,7 +66,7 @@ The meta data contains information about the mutations in genes ATRX, PIK3CA, RB
 It is observed that TP53 and PTEN are mutated in most samples.
 Around 45 % of the cohort had only one mutation and 22% did not have any mutation. Only 1 patient had mutation in 4 genes.  
 
-```{r}
+```{r mutCount}
 
 # Subset the GBM data frame to rows 10 to 17 to choose only mutation columns
 subset_data <- GBM_meta[,12:17]
@@ -134,76 +98,54 @@ kable(sum_table, format = "html", align = 'c', caption = "Frequency of mutations
 
 ```
 
+![Gene Counts](Figures/Gene_counts.png){align=center}
 
-```{r, fig.align='center', fig.height= 4, fig.width= 6}
+I will be focusing only on the genes ATRX, PIK3CA, RB1, TP53, EGFR and PTEN for further analysis.
 
-# Plot
-
-ggplot(data = col_sums, aes(x = Genes, y = Freq)) +
-  geom_bar(stat = "identity", aes(fill=Genes), show.legend = F) +
-  labs(title = "Gene Counts",
-       x = "Genes",
-       y = "Counts") + 
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-```
-
-Looking at the mutations of ATRX, PIK3CA, RB1, TP53, EGFR and PTEN
-
-```{r}
+```{r mutSubset}
 genes <- c("ATRX", "PIK3CA", "RB1", "TP53", "EGFR", "PTEN")
-mutations<- read.delim("source_data/somatic_mutations.maf.gz")
 idx1<-which(mutations$Hugo_Symbol %in% genes)
 mutation_subset <- mutations[idx1,]
 
 ```
 
-```{r}
+Gene by variant type
 
-mutation_subset %>%
-  group_by(Hugo_Symbol, Variant_Classification) %>%
-  tally() %>%
-  ggplot(aes(x = Variant_Classification, y = n, fill = Variant_Classification)) +
-  geom_bar(stat = "identity") +
-  facet_wrap(~ Hugo_Symbol, scales = "free_y") +  # Use facet_wrap for separate plots by Variant_Classification
-  labs(title = "Variant Type by Gene", x = "Gene Symbol", y = "Count") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black"))
-
+```{r mutTally}
+mutation_subset %>% 
+  group_by(Hugo_Symbol, Variant_Type) %>% 
+  tally()  %>%
+  arrange(desc(n))
 ```
 
-# Genomic Profile
+![Variants per gene](Figures/Mutation_gene.png){align=center}
+
+The package GenVisR is useful for visualizing mutation data.
+
+![Waterfall Plot for Mutations](Figures/Mutation_waterfall.png){align=center}
+
+*** 
+
+## Genomic Profile
 
 
+The gene expression data available is log2 transformed fpkm. 
+```{r, eval=FALSE}
 
-```{r}
-
-# Heatmap of genomic profile
-
-genome <- read.delim2("source_data/CPTAC_GBM_rnaseq_fpkm_uq_log2.txt")
-rownames(genome)<-genome[,1]
-genome<-genome[,-1]
-genome<-as.data.frame(genome)
-```
-
-```{r}
-# Install and load the pheatmap package if not already installed
-# install.packages("pheatmap")
-library(pheatmap)
-
+# Heatmap
 genome <- as.data.frame(sapply(genome, as.numeric))
 
-# Plot heatmap using pheatmap
-pheatmap(genome, 
-         cluster_rows = T,  # Disable clustering for rows
-         cluster_cols = T,  # Disable clustering for columns
-         scale = "row",         # Scale rows
-         main = "Genomic Data Heatmap",
-         fontsize = 8           # Adjust font size for row and column names
-)
+# Set row and column names for better readability
+rownames(genomic_data) <- paste0("Gene", 1:10)
+colnames(genomic_data) <- paste0("Sample", 1:10)
+
+# Create a Heatmap object
+heatmap_obj <- Heatmap(genomic_data, 
+                       name = "Genomic Data", 
+                       row_names_gp = gpar(fontsize = 8), 
+                       column_names_gp = gpar(fontsize = 8))
+
+# Draw the heatmap
+draw(heatmap_obj, main = "Genomic Data Heatmap")
+
 ```
