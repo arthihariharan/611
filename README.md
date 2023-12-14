@@ -39,7 +39,14 @@ git clone https://github.com/arthihariharan/611.git
 
 #### 2. Build a docker image 
 
-In a new terminal/window build the docker container using the docker build command with image name.
+In a new terminal/window, set the current working directory to the cloned folder.
+
+```
+cd ~./611
+
+```
+
+Build the docker container using the docker build command with image name.
 For example, to build an image named 611 use the following command:
 
 ```
@@ -52,17 +59,15 @@ docker build . -t 611
 For Mac/terminal, use the following command to run the container
 
 ```
-docker run "docker run -v $(pwd):/home/rstudio/work -p 8787:8787 -it 611"
-# Replace 611 with the image name used to build the container
+docker run -v $(pwd):/home/rstudio/work -p 8787:8787 -it 611"
 ```
 
 For Powershell, use the following command to run the container
 
 ```
-docker run "docker run -v ${pwd}:/home/rstudio/work -p 8787:8787 -it 611"
-# Replace 611 with the image name used to build the container
+docker run -v ${pwd}:/home/rstudio/work -p 8787:8787 -it 611
 ```
-
+ Replace 611 with the image name used to build the container
 
 #### 4. Running Rstudio Docker container
 
@@ -97,12 +102,6 @@ make Report.html
 	
 ```
 make Demographics.png
-```
-
- To create a figure for the prevalence of mutations run "make Mutations.png"
-
-```
-make Mutations.png
 ```
 
   To run all the scripts in the Makefile
