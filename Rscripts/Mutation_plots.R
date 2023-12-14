@@ -13,7 +13,19 @@ library(maftools)
 library(GenVisR)
 library(readr)
 
+#----------------------------
+#Data
 GBM_meta <- read.csv("derived_data/GBM_metainfo.csv")
+mutations<- read.delim("source_data/somatic_mutations.maf.gz")
+mutations$Variant_Classification <- ifelse( mutations$Variant_Classification=="Splice_Region", "Splice_Site",mutations$Variant_Classification)
+mafObj<-read.maf("source_data/somatic_mutations.maf.gz")
+
+#Genes
+genes <- c("ATRX", "PIK3CA", "RB1", "TP53", "EGFR", "PTEN")
+
+#Mutation Subset
+idx1<-which(mutations$Hugo_Symbol %in% genes)
+mutation_subset <- mutations[idx1,]
 
 # Subset the GBM data frame to rows 10 to 17 to choose only mutation columns
 subset_data <- GBM_meta[,12:17]
@@ -37,7 +49,7 @@ colnames(col_sums)<-c("Freq","Genes")
 col_sums<-col_sums[,c("Genes","Freq")]
 col_sums$Genes <- gsub("_mutation", "", col_sums$Genes)
 
-# Plot
+# Plots --------------------------------------
 
 png("Figures/Gene_counts.png")
 ggplot(data = col_sums, aes(x = Genes, y = Freq)) +
@@ -49,18 +61,6 @@ ggplot(data = col_sums, aes(x = Genes, y = Freq)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"))
-
-#----------------------------
-#Data
-mutations<- read.delim("source_data/somatic_mutations.maf.gz")
-mutations$Variant_Classification <- ifelse( mutations$Variant_Classification=="Splice_Region", "Splice_Site",mutations$Variant_Classification)
-
-#Genes
-genes <- c("ATRX", "PIK3CA", "RB1", "TP53", "EGFR", "PTEN")
-
-#Subset
-idx1<-which(mutations$Hugo_Symbol %in% genes)
-mutation_subset <- mutations[idx1,]
 
 #----------------------------
 
@@ -112,4 +112,9 @@ waterfall(mutation_subset,
           plot_proportions = T)
 dev.off()
 
+#--------------------------------------------------------------------
 
+pPath<-pathways(mafObj)
+png("Figures/Pathways.png",height = 800, width = 1000)
+plotPathways(mafObj,pPath)
+dev.off()
